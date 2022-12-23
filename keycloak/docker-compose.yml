@@ -1,41 +1,29 @@
-version: '3'
-
+version: '2'
 volumes:
   mysql_data:
     driver: local
-
 services:
   mysql:
-    image: mysql:8.0
-    container_name: mysql_container
-    ports:
-      - 3306:3306
+    image: mysql:5.7
+    volumes:
+      - mysql_data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: keycloak
       MYSQL_USER: keycloak
       MYSQL_PASSWORD: password
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci 
-    volumes:
-      - mysql_data:/var/lib/mysql
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    container_name: keycloak_container
+    image: jboss/keycloak
     environment:
       DB_VENDOR: MYSQL
       DB_ADDR: mysql
-      DB_DATABASE: keycloak 
-      DB_USER: root
-      DB_PASSWORD: root
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
-      JDBC_PARAMS: "connectTimeout=300000"
+      PROXY_ADDRESS_FORWARDING: 'true'
     ports:
       - 8080:8080
-    command:
-      - start-dev
     depends_on:
       - mysql
-
